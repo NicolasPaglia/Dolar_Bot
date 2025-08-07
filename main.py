@@ -62,8 +62,18 @@ async def enviar_mensaje_async():
 @app.route("/send", methods=["GET"])
 def send():
     print("📥 Solicitud recibida en /send")
-    asyncio.run(enviar_mensaje_async())
-    return "✅ Mensaje enviado al canal/usuario de Telegram"
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    try:
+        loop.run_until_complete(enviar_mensaje_async())
+        return "✅ Mensaje enviado al canal/usuario de Telegram"
+    except Exception as e:
+        print(f"❌ Error en loop: {e}")
+        return f"❌ Error al enviar mensaje: {e}", 500
 
 # === ENDPOINT PARA OBTENER CHAT_ID ===
 @app.route("/get_id", methods=["GET"])
